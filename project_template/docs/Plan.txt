@@ -1,0 +1,15 @@
+RPG
+
+
+You are the character
+You have moves specific to you
+You fight other people
+Top-down view.
+
+The main character will fight the four best programming professors from BYU-I.
+After he defeats them all, he becomes the best programmer in the world.
+
+Burton
+Manley
+Barzee
+Final Battle -- Brother Nathan Phillips
