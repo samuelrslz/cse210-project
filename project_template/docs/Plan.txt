@@ -1,6 +1,13 @@
-RPG
+Official Name:
+Kevin: Divine Program Master
+
+Technologies
+Python 3.8 or greater
+Arcade Library
+Eight or more classes
 
 
+Features
 You are the character
 You have moves specific to you
 You fight other people
@@ -12,4 +19,58 @@ After he defeats them all, he becomes the best programmer in the world.
 Burton
 Manley
 Barzee
-Final Battle -- Brother Nathan Phillips
+Final Battle -- To be determined
+
+
+Wish List with priorities.
+
+(1) Start Button
+(1) Help Button
+
+(1) User controlled paddle
+
+(1) The character moves around
+(1) A fight starts after a collision
+(1) The character has stamina so he could lose or win (he dies without stamina).
+(1) The character and the professors have four moves each.
+(2) The character learns new moves or new skills
+(2) The character can interact and learn from friends (mom, roommates, girlfriend, Kevin.)
+(3) The character can earn and use money.
+
+(1) Win scene with
+(1) Lose scene
+(2) Sound effects
+ 
+Character's main moves
+- Stacks Overflow
+- Indian YouTuber
+
+Character's moves that he can learn
+- Tutor Center
+- Asian YouTuber
+- LinkedIn Learning
+- Time Management
+
+
+Proffessors's main moves
+- Lying about deadlines
+- Vague explanations
+- No class today
+- Hard grading
+- Big projects
+- Throw stress at us
+- Pop Quiz
+- Attractive classmates of the opposite sex
+- Boring class
+
+
+Timeline
+We will follow the same timeline that the course follows. 
+Week 10. We will handle basic input and move the player
+Week 11. We will handle the top priority items of our wishes list.
+Week 12. We will handle the second top priority items of our wishes list.
+Week 13. We will deliver the finalized game.
+
+
+
+
