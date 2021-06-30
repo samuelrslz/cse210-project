@@ -2,34 +2,8 @@
 Platformer Game
 """
 import arcade
-
-# Constants
-SCREEN_WIDTH = 1200
-SCREEN_HEIGHT = 800
-SCREEN_TITLE = "Kevin: Divine Program Master"
-
-# Constants used to scale our sprites from their original size
-CHARACTER_SCALING = 1
-TILE_SCALING = 0.5
-COIN_SCALING = 0.5
-SPRITE_PIXEL_SIZE = 128
-GRID_PIXEL_SIZE = (SPRITE_PIXEL_SIZE * TILE_SCALING)
-
-# Movement speed of player, in pixels per frame
-PLAYER_MOVEMENT_SPEED = 10
-GRAVITY = 0
-PLAYER_JUMP_SPEED = 20
-
-# How many pixels to keep as a minimum margin between the character
-# and the edge of the screen.
-LEFT_VIEWPORT_MARGIN = 200
-RIGHT_VIEWPORT_MARGIN = 200
-BOTTOM_VIEWPORT_MARGIN = 150
-TOP_VIEWPORT_MARGIN = 100
-
-PLAYER_START_X = 64
-PLAYER_START_Y = 225
-
+from text import Text
+import constants
 
 class MyGame(arcade.Window):
     """
@@ -39,7 +13,7 @@ class MyGame(arcade.Window):
     def __init__(self):
 
         # Call the parent class and set up the window
-        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+        super().__init__(constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT, constants.SCREEN_TITLE)
 
         # These are 'lists' that keep track of our sprites. Each sprite should
         # go into a list.
@@ -93,9 +67,9 @@ class MyGame(arcade.Window):
 
         # Set up the player, specifically placing it at these coordinates.
         image_source = "project_template/Kevin_DPM/assets/images/custom_tiles/phillips.png"
-        self.player_sprite = arcade.Sprite(image_source, CHARACTER_SCALING)
-        self.player_sprite.center_x = PLAYER_START_X
-        self.player_sprite.center_y = PLAYER_START_Y
+        self.player_sprite = arcade.Sprite(image_source, constants.CHARACTER_SCALING)
+        self.player_sprite.center_x = constants.PLAYER_START_X
+        self.player_sprite.center_y = constants.PLAYER_START_Y
         self.player_list.append(self.player_sprite)
 
         # --- Load in a map from the tiled editor ---
@@ -118,35 +92,23 @@ class MyGame(arcade.Window):
         my_map = arcade.tilemap.read_tmx(map_name)
 
         # Calculate the right edge of the my_map in pixels
-        self.end_of_map = my_map.map_size.width * GRID_PIXEL_SIZE
+        self.end_of_map = my_map.map_size.width * constants.GRID_PIXEL_SIZE
 
         # -- Background
         self.background_list = arcade.tilemap.process_layer(my_map,
                                                             background_layer_name,
-                                                            TILE_SCALING)
+                                                            constants.TILE_SCALING)
 
         # -- Foreground
         self.foreground_list = arcade.tilemap.process_layer(my_map,
                                                             foreground_layer_name,
-                                                            TILE_SCALING)
+                                                            constants.TILE_SCALING)
 
         # -- Platforms
         self.wall_list = arcade.tilemap.process_layer(map_object=my_map,
                                                       layer_name=platforms_layer_name,
-                                                      scaling=TILE_SCALING,
+                                                      scaling=constants.TILE_SCALING,
                                                       use_spatial_hash=True)
-
-        # -- Coins
-        self.coin_list = arcade.tilemap.process_layer(my_map,
-                                                      coins_layer_name,
-                                                      TILE_SCALING,
-                                                      use_spatial_hash=True)
-
-        # -- Don't Touch Layer
-        self.dont_touch_list = arcade.tilemap.process_layer(my_map,
-                                                            dont_touch_layer_name,
-                                                            TILE_SCALING,
-                                                            use_spatial_hash=True)
 
         # --- Other stuff
         # Set the background color
@@ -156,7 +118,7 @@ class MyGame(arcade.Window):
         # Create the 'physics engine'
         self.physics_engine = arcade.PhysicsEnginePlatformer(self.player_sprite,
                                                              self.wall_list,
-                                                             GRAVITY)
+                                                             constants.GRAVITY)
 
     def on_draw(self):
         """ Render the screen. """
@@ -168,13 +130,12 @@ class MyGame(arcade.Window):
         self.wall_list.draw()
         self.background_list.draw()
         self.wall_list.draw()
-        self.coin_list.draw()
-        self.dont_touch_list.draw()
         self.player_list.draw()
         self.foreground_list.draw()
 
         # Draw our score on the screen, scrolling it with the viewport
-        score_text = f"Score: {self.score}"
+        arcade.draw_rectangle_filled(self.view_left + constants.SCREEN_WIDTH/2, self.view_bottom + constants.TEXT_BOX_HEIGHT/2, constants.SCREEN_WIDTH, constants.TEXT_BOX_HEIGHT, arcade.csscolor.WHITE)
+        score_text = f"SADF;ASJDF"
         arcade.draw_text(score_text, 10 + self.view_left, 10 + self.view_bottom,
                          arcade.csscolor.BLACK, 18)
 
@@ -182,13 +143,13 @@ class MyGame(arcade.Window):
         """Called whenever a key is pressed. """
 
         if key == arcade.key.UP or key == arcade.key.W or key == arcade.key.SPACE:
-            self.player_sprite.change_y = PLAYER_MOVEMENT_SPEED
+            self.player_sprite.change_y = constants.PLAYER_MOVEMENT_SPEED
         elif key == arcade.key.DOWN or key == arcade.key.S:
-            self.player_sprite.change_y = -PLAYER_MOVEMENT_SPEED
+            self.player_sprite.change_y = -constants.PLAYER_MOVEMENT_SPEED
         elif key == arcade.key.LEFT or key == arcade.key.A:
-            self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
+            self.player_sprite.change_x = -constants.PLAYER_MOVEMENT_SPEED
         elif key == arcade.key.RIGHT or key == arcade.key.D:
-            self.player_sprite.change_x = PLAYER_MOVEMENT_SPEED
+            self.player_sprite.change_x = constants.PLAYER_MOVEMENT_SPEED
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
@@ -224,66 +185,28 @@ class MyGame(arcade.Window):
         # Track if we need to change the viewport
         changed_viewport = False
 
-        # Did the player fall off the map?
-        if self.player_sprite.center_y < -100:
-            self.player_sprite.center_x = PLAYER_START_X
-            self.player_sprite.center_y = PLAYER_START_Y
-
-            # Set the camera to the start
-            self.view_left = 0
-            self.view_bottom = 0
-            changed_viewport = True
-            arcade.play_sound(self.game_over)
-
-        # Did the player touch something they should not?
-        if arcade.check_for_collision_with_list(self.player_sprite,
-                                                self.dont_touch_list):
-            self.player_sprite.change_x = 0
-            self.player_sprite.change_y = 0
-            self.player_sprite.center_x = PLAYER_START_X
-            self.player_sprite.center_y = PLAYER_START_Y
-
-            # Set the camera to the start
-            self.view_left = 0
-            self.view_bottom = 0
-            changed_viewport = True
-            arcade.play_sound(self.game_over)
-
-        # See if the user got to the end of the level
-        if self.player_sprite.center_x >= self.end_of_map:
-            # Advance to the next level
-            self.level += 1
-
-            # Load the next level
-            self.setup(self.level)
-
-            # Set the camera to the start
-            self.view_left = 0
-            self.view_bottom = 0
-            changed_viewport = True
-
         # --- Manage Scrolling ---
 
         # Scroll left
-        left_boundary = self.view_left + LEFT_VIEWPORT_MARGIN
+        left_boundary = self.view_left + constants.LEFT_VIEWPORT_MARGIN
         if self.player_sprite.left < left_boundary:
             self.view_left -= left_boundary - self.player_sprite.left
             changed_viewport = True
 
         # Scroll right
-        right_boundary = self.view_left + SCREEN_WIDTH - RIGHT_VIEWPORT_MARGIN
+        right_boundary = self.view_left + constants.SCREEN_WIDTH - constants.RIGHT_VIEWPORT_MARGIN
         if self.player_sprite.right > right_boundary:
             self.view_left += self.player_sprite.right - right_boundary
             changed_viewport = True
 
         # Scroll up
-        top_boundary = self.view_bottom + SCREEN_HEIGHT - TOP_VIEWPORT_MARGIN
+        top_boundary = self.view_bottom + constants.SCREEN_HEIGHT - constants.TOP_VIEWPORT_MARGIN
         if self.player_sprite.top > top_boundary:
             self.view_bottom += self.player_sprite.top - top_boundary
             changed_viewport = True
 
         # Scroll down
-        bottom_boundary = self.view_bottom + BOTTOM_VIEWPORT_MARGIN
+        bottom_boundary = self.view_bottom + constants.BOTTOM_VIEWPORT_MARGIN
         if self.player_sprite.bottom < bottom_boundary:
             self.view_bottom -= bottom_boundary - self.player_sprite.bottom
             changed_viewport = True
@@ -296,9 +219,9 @@ class MyGame(arcade.Window):
 
             # Do the scrolling
             arcade.set_viewport(self.view_left,
-                                SCREEN_WIDTH + self.view_left,
+                                constants.SCREEN_WIDTH + self.view_left,
                                 self.view_bottom,
-                                SCREEN_HEIGHT + self.view_bottom)
+                                constants.SCREEN_HEIGHT + self.view_bottom)
 
 
 def main():
