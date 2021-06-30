@@ -130,13 +130,11 @@ class MyGame(arcade.Window):
         self.wall_list.draw()
         self.background_list.draw()
         self.wall_list.draw()
-        self.coin_list.draw()
-        self.dont_touch_list.draw()
         self.player_list.draw()
         self.foreground_list.draw()
 
         # Draw our score on the screen, scrolling it with the viewport
-        arcade.draw_rectangle_filled(self.view_left + constants.SCREEN_WIDTH/2, self.view_bottom + textHeight/2, constants.SCREEN_WIDTH, textHeight, arcade.csscolor.WHITE)
+        arcade.draw_rectangle_filled(self.view_left + constants.SCREEN_WIDTH/2, self.view_bottom + constants.TEXT_BOX_HEIGHT/2, constants.SCREEN_WIDTH, constants.TEXT_BOX_HEIGHT, arcade.csscolor.WHITE)
         score_text = f"SADF;ASJDF"
         arcade.draw_text(score_text, 10 + self.view_left, 10 + self.view_bottom,
                          arcade.csscolor.BLACK, 18)
