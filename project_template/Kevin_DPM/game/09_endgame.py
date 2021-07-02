@@ -17,7 +17,6 @@ class MyGame(arcade.Window):
 
         # These are 'lists' that keep track of our sprites. Each sprite should
         # go into a list.
-        self.coin_list = None
         self.wall_list = None
         self.foreground_list = None
         self.background_list = None
@@ -44,9 +43,16 @@ class MyGame(arcade.Window):
         self.level = 1
 
         # Load sounds
-        self.collect_coin_sound = arcade.load_sound(":resources:sounds/coin1.wav")
         self.jump_sound = arcade.load_sound(":resources:sounds/jump1.wav")
         self.game_over = arcade.load_sound(":resources:sounds/gameover1.wav")
+
+        # Keep track of whether or not you are in contact with a professor to show text
+        self.show_text = False
+
+        self.display_text = ""
+        self.display_text_count = 0
+
+        self.show_battle_scene = False
 
     def setup(self, level):
         """ Set up the game here. Call this function to restart the game. """
@@ -60,10 +66,10 @@ class MyGame(arcade.Window):
 
         # Create the Sprite lists
         self.player_list = arcade.SpriteList()
+        self.professor_list = arcade.SpriteList()
         self.foreground_list = arcade.SpriteList()
         self.background_list = arcade.SpriteList()
         self.wall_list = arcade.SpriteList()
-        self.coin_list = arcade.SpriteList()
 
         # Set up the player, specifically placing it at these coordinates.
         image_source = "project_template/Kevin_DPM/assets/images/custom_tiles/phillips.png"
@@ -72,18 +78,24 @@ class MyGame(arcade.Window):
         self.player_sprite.center_y = constants.PLAYER_START_Y
         self.player_list.append(self.player_sprite)
 
+
+
+        # Set up the player, specifically placing it at these coordinates.
+        image_source = "project_template/Kevin_DPM/assets/images/custom_tiles/phillips.png"
+        self.professor_sprite = arcade.Sprite(image_source, constants.CHARACTER_SCALING)
+        self.professor_sprite.center_x = constants.PHILLIPS_START_X
+        self.professor_sprite.center_y = constants.PHILLIPS_START_Y
+        self.professor_list.append(self.professor_sprite)
+
+
         # --- Load in a map from the tiled editor ---
 
         # Name of the layer in the file that has our platforms/walls
         platforms_layer_name = 'Platforms'
-        # Name of the layer that has items for pick-up
-        coins_layer_name = 'Coins'
         # Name of the layer that has items for foreground
         foreground_layer_name = 'Foreground'
         # Name of the layer that has items for background
         background_layer_name = 'Background'
-        # Name of the layer that has items we shouldn't touch
-        dont_touch_layer_name = "Don't Touch"
 
         # Map name
         map_name = f"project_template/Kevin_DPM/assets/maps/byui.tmx"
@@ -116,40 +128,65 @@ class MyGame(arcade.Window):
             arcade.set_background_color(my_map.background_color)
 
         # Create the 'physics engine'
-        self.physics_engine = arcade.PhysicsEnginePlatformer(self.player_sprite,
-                                                             self.wall_list,
-                                                             constants.GRAVITY)
+        self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite,
+                                                             self.wall_list)
+        # Create the 'physics engine'
+        self.physics_engine_prof = arcade.PhysicsEngineSimple(self.player_sprite,
+                                                             self.professor_list)
+
+
 
     def on_draw(self):
         """ Render the screen. """
 
         # Clear the screen to the background color
         arcade.start_render()
+        
+        if not self.show_battle_scene:
+            # Draw our sprites
+            self.wall_list.draw()
+            self.background_list.draw()
+            self.wall_list.draw()
+            self.professor_list.draw()
+            self.player_list.draw()
+            self.foreground_list.draw()
 
-        # Draw our sprites
-        self.wall_list.draw()
-        self.background_list.draw()
-        self.wall_list.draw()
-        self.player_list.draw()
-        self.foreground_list.draw()
+        else:
+            self.professor_list.draw()
+        
 
-        # Draw our score on the screen, scrolling it with the viewport
-        arcade.draw_rectangle_filled(self.view_left + constants.SCREEN_WIDTH/2, self.view_bottom + constants.TEXT_BOX_HEIGHT/2, constants.SCREEN_WIDTH, constants.TEXT_BOX_HEIGHT, arcade.csscolor.WHITE)
-        score_text = f"SADF;ASJDF"
-        arcade.draw_text(score_text, 10 + self.view_left, 10 + self.view_bottom,
-                         arcade.csscolor.BLACK, 18)
+        if self.show_text:
+            # Draw our score on the screen, scrolling it with the viewport
+            arcade.draw_rectangle_filled(self.view_left + constants.SCREEN_WIDTH/2, self.view_bottom + constants.TEXT_BOX_HEIGHT/2, constants.SCREEN_WIDTH, constants.TEXT_BOX_HEIGHT, arcade.csscolor.WHITE)
+            score_text = f"Ready to Battle Professor Phillips? Press enter to continue."
+            
+            if self.display_text == "":
+                self.display_text_count = 0
+            if self.display_text.replace("\n", "") != score_text:
+                self.display_text += score_text[self.display_text_count]
+                if self.display_text_count % 35 == 0 and self.display_text_count > 0:
+                    self.display_text += "\n"
+                self.display_text_count += 1
+            arcade.draw_text(self.display_text, 10 + self.view_left, constants.TEXT_BOX_HEIGHT/2 + self.view_bottom - 80,
+                         arcade.csscolor.BLACK, 48)
+
+        else:
+            self.display_text = ""
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
-
-        if key == arcade.key.UP or key == arcade.key.W or key == arcade.key.SPACE:
-            self.player_sprite.change_y = constants.PLAYER_MOVEMENT_SPEED
-        elif key == arcade.key.DOWN or key == arcade.key.S:
-            self.player_sprite.change_y = -constants.PLAYER_MOVEMENT_SPEED
-        elif key == arcade.key.LEFT or key == arcade.key.A:
-            self.player_sprite.change_x = -constants.PLAYER_MOVEMENT_SPEED
-        elif key == arcade.key.RIGHT or key == arcade.key.D:
-            self.player_sprite.change_x = constants.PLAYER_MOVEMENT_SPEED
+        if not self.show_battle_scene:
+            if key == arcade.key.UP or key == arcade.key.W:
+                self.player_sprite.change_y = constants.PLAYER_MOVEMENT_SPEED
+            elif key == arcade.key.DOWN or key == arcade.key.S:
+                self.player_sprite.change_y = -constants.PLAYER_MOVEMENT_SPEED
+            elif key == arcade.key.LEFT or key == arcade.key.A:
+                self.player_sprite.change_x = -constants.PLAYER_MOVEMENT_SPEED
+            elif key == arcade.key.RIGHT or key == arcade.key.D:
+                self.player_sprite.change_x = constants.PLAYER_MOVEMENT_SPEED
+            
+        if key == arcade.key.ENTER and self.show_text:
+            self.show_battle_scene = True
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
@@ -166,21 +203,17 @@ class MyGame(arcade.Window):
     def update(self, delta_time):
         """ Movement and game logic """
 
+        professor_collision = arcade.check_for_collision_with_list(self.player_sprite, self.professor_list)
+
+        if len(professor_collision) > 0:
+            self.show_text = True
+        else:
+            
+            self.show_text = False
+
         # Move the player with the physics engine
         self.physics_engine.update()
-
-        # See if we hit any coins
-        coin_hit_list = arcade.check_for_collision_with_list(self.player_sprite,
-                                                             self.coin_list)
-
-        # Loop through each coin we hit (if any) and remove it
-        for coin in coin_hit_list:
-            # Remove the coin
-            coin.remove_from_sprite_lists()
-            # Play a sound
-            arcade.play_sound(self.collect_coin_sound)
-            # Add one to the score
-            self.score += 1
+        # self.physics_engine_prof.update()
 
         # Track if we need to change the viewport
         changed_viewport = False
