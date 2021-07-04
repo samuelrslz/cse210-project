@@ -4,6 +4,11 @@ Platformer Game
 import arcade
 from text import Text
 import constants
+from controls import Controls
+from scene import Scene
+from professor import Professor
+from player import Player
+from battle_moves import Battle_Moves
 
 class MyGame(arcade.Window):
     """
@@ -23,11 +28,22 @@ class MyGame(arcade.Window):
         self.dont_touch_list = None
         self.player_list = None
 
+        self.all_sprites_list = None
+
         # Separate variable that holds the player sprite
-        self.player_sprite = None
+        self.player_sprite = []
 
         # Our physics engine
         self.physics_engine = None
+
+        # Bring in the controls class
+        self._controls = Controls()
+        # Bring in the scene class
+        self._scene = Scene()
+        # Bring in the text class
+        self._text = Text()
+        # Bring in the text class
+        self._battle_moves = Battle_Moves()
 
         # Used to keep track of our scrolling
         self.view_bottom = 0
@@ -52,8 +68,6 @@ class MyGame(arcade.Window):
         self.display_text = ""
         self.display_text_count = 0
 
-        self.show_battle_scene = False
-
     def setup(self, level):
         """ Set up the game here. Call this function to restart the game. """
 
@@ -72,19 +86,27 @@ class MyGame(arcade.Window):
         self.wall_list = arcade.SpriteList()
 
         # Set up the player, specifically placing it at these coordinates.
-        image_source = "project_template/Kevin_DPM/assets/images/custom_tiles/phillips.png"
-        self.player_sprite = arcade.Sprite(image_source, constants.CHARACTER_SCALING)
-        self.player_sprite.center_x = constants.PLAYER_START_X
-        self.player_sprite.center_y = constants.PLAYER_START_Y
+        main_image_source = "project_template/Kevin_DPM/assets/images/kevin/kevin_standing.png"
+        battle_image_source = "project_template/Kevin_DPM/assets/images/kevin/kevin_battle.png"
+        
+        player_images = [main_image_source, battle_image_source]
+        self.player_sprite = Player(player_images,
+                                            constants.PLAYER_START_X, constants.PLAYER_START_Y)
         self.player_list.append(self.player_sprite)
 
 
 
         # Set up the player, specifically placing it at these coordinates.
-        image_source = "project_template/Kevin_DPM/assets/images/custom_tiles/phillips.png"
-        self.professor_sprite = arcade.Sprite(image_source, constants.CHARACTER_SCALING)
-        self.professor_sprite.center_x = constants.PHILLIPS_START_X
-        self.professor_sprite.center_y = constants.PHILLIPS_START_Y
+        prof_name = "Phillips"
+        main_image_source = f"project_template/Kevin_DPM/assets/images/custom_tiles/{prof_name.lower()}.png"
+        battle_image_source = f"project_template/Kevin_DPM/assets/images/professors/{prof_name.lower()}.png"
+        attacks = {
+            "names": ["Program a loop", "Define a function"],
+            "damage": [1, 2]
+        }
+        professor_images = [main_image_source, battle_image_source]
+        self.professor_sprite = Professor(professor_images, prof_name, 
+                                            constants.PHILLIPS_START_X, constants.PHILLIPS_START_Y, attacks)
         self.professor_list.append(self.professor_sprite)
 
 
@@ -134,71 +156,111 @@ class MyGame(arcade.Window):
         self.physics_engine_prof = arcade.PhysicsEngineSimple(self.player_sprite,
                                                              self.professor_list)
 
+    
+    def _load_all_sprites(self):
+        self.all_sprites_list = []
+        self.all_sprites_list.append(self.background_list)
+        self.all_sprites_list.append(self.wall_list)
+        self.all_sprites_list.append(self.professor_list)
+        self.all_sprites_list.append(self.player_list)
+        self.all_sprites_list.append(self.foreground_list)
 
 
     def on_draw(self):
         """ Render the screen. """
 
         # Clear the screen to the background color
+        self._load_all_sprites()
         arcade.start_render()
         
-        if not self.show_battle_scene:
+
+        if not self._scene.battle_scene:
             # Draw our sprites
-            self.wall_list.draw()
-            self.background_list.draw()
-            self.wall_list.draw()
-            self.professor_list.draw()
-            self.player_list.draw()
-            self.foreground_list.draw()
+            self._scene.display(self.all_sprites_list)
 
         else:
-            self.professor_list.draw()
+            self._scene.battle_display(self.player_list[0], self.professor_list[0])
         
 
         if self.show_text:
-            # Draw our score on the screen, scrolling it with the viewport
-            arcade.draw_rectangle_filled(self.view_left + constants.SCREEN_WIDTH/2, self.view_bottom + constants.TEXT_BOX_HEIGHT/2, constants.SCREEN_WIDTH, constants.TEXT_BOX_HEIGHT, arcade.csscolor.WHITE)
-            score_text = f"Ready to Battle Professor Phillips? Press enter to continue."
+            # Draw our text on the screen, scrolling it with the viewport
+
+            if not self._battle_moves.can_show_battle_moves:
+                arcade.draw_rectangle_filled(self.view_left + constants.SCREEN_WIDTH/2, self.view_bottom + constants.TEXT_BOX_HEIGHT/2,
+                            constants.SCREEN_WIDTH, constants.TEXT_BOX_HEIGHT, arcade.csscolor.WHITE)
+                
+                
+                text = "asdf"
+                if not self._scene.battle_scene:
+                    text = self._text.meet_prof_text(self.professor_list[0].professor_name)
+                else:
+                    if self._battle_moves.has_chosen_move:
+                        prof_name = self.professor_list[0].professor_name
+                        text_with_check = self._text.battle_prof_text(prof_name, self.professor_list[0].chosen_move, self._battle_moves.moves[self._battle_moves.current_move], show_has_finished = True)
+                        
+                        text = text_with_check[0]
+
+                        if text_with_check[1] and self._controls.can_proceed:
+                            self._battle_moves.has_chosen_move = False
+                            self._battle_moves.can_show_battle_moves = True
+
+                arcade.draw_text(text, 10 + self.view_left, constants.TEXT_BOX_HEIGHT/2 + self.view_bottom - 80,
+                            arcade.csscolor.BLACK, 48)
             
-            if self.display_text == "":
-                self.display_text_count = 0
-            if self.display_text.replace("\n", "") != score_text:
-                self.display_text += score_text[self.display_text_count]
-                if self.display_text_count % 35 == 0 and self.display_text_count > 0:
-                    self.display_text += "\n"
-                self.display_text_count += 1
-            arcade.draw_text(self.display_text, 10 + self.view_left, constants.TEXT_BOX_HEIGHT/2 + self.view_bottom - 80,
-                         arcade.csscolor.BLACK, 48)
+            else:
+                self._battle_moves.current_move = self._controls.current_index
+                self._battle_moves.draw_all_moves(self.view_left, self.view_bottom)
+                    
 
         else:
-            self.display_text = ""
+            self._text.display_text = ""
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
-        if not self.show_battle_scene:
-            if key == arcade.key.UP or key == arcade.key.W:
-                self.player_sprite.change_y = constants.PLAYER_MOVEMENT_SPEED
-            elif key == arcade.key.DOWN or key == arcade.key.S:
-                self.player_sprite.change_y = -constants.PLAYER_MOVEMENT_SPEED
-            elif key == arcade.key.LEFT or key == arcade.key.A:
-                self.player_sprite.change_x = -constants.PLAYER_MOVEMENT_SPEED
-            elif key == arcade.key.RIGHT or key == arcade.key.D:
-                self.player_sprite.change_x = constants.PLAYER_MOVEMENT_SPEED
+        if not self._scene.battle_scene:
+            self._controls.main_scene_pressed(key, modifiers, self.show_text)
+            self.player_sprite.change_x, self.player_sprite.change_y = self._controls.change_x, self._controls.change_y
             
-        if key == arcade.key.ENTER and self.show_text:
-            self.show_battle_scene = True
+            self._scene.battle_scene = self._controls.can_proceed
+            if self._scene.battle_scene:
+                self._text.clear_text()
+                self._battle_moves.can_show_battle_moves = True
+
+
+        else:
+            self._controls.battle_scene_pressed(key, modifiers, self.show_text)
+            if not self._battle_moves.has_chosen_move:
+                self._battle_moves.can_show_battle_moves = True
+                self._text.clear_text()
+                if key == arcade.key.ENTER:
+                    self._battle_moves.current_move = self._controls.current_index
+                    self._battle_moves.has_chosen_move = True
+                    self._battle_moves.can_show_battle_moves = False
+                    random_move = self.professor_list[0].pick_random_attack()
+                    self.professor_list[0].chosen_move = self.professor_list[0].attack_names[random_move]
+                    self.player_list[0].stanima -= self.professor_list[0].attacks_damage[random_move]
+                    if self._battle_moves.moves[self._battle_moves.current_move] == "attempt":
+                        self.professor_list[0].task_health -= 1
+
+            else:                    
+                self._battle_moves.can_show_battle_moves = False
+                
+                if key == arcade.key.ENTER and self.show_text:
+                    self._controls.can_proceed = True
+            # self
+
+        # print(self._battle_moves.has_chosen_move)
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
-
-        if key == arcade.key.UP or key == arcade.key.W:
-            self.player_sprite.change_y = 0
-        elif key == arcade.key.DOWN or key == arcade.key.S:
-            self.player_sprite.change_y = 0
-        elif key == arcade.key.LEFT or key == arcade.key.A:
-            self.player_sprite.change_x = 0
-        elif key == arcade.key.RIGHT or key == arcade.key.D:
-            self.player_sprite.change_x = 0
+        if not self._scene.battle_scene:
+            self._controls.main_scene_released(key, modifiers, self.show_text)
+            self.player_sprite.change_x, self.player_sprite.change_y = self._controls.change_x, self._controls.change_y
+        else:
+            self._controls.battle_scene_released(key, modifiers, self.show_text)
+            self._controls.update_current_index()
+            
+        
 
     def update(self, delta_time):
         """ Movement and game logic """
