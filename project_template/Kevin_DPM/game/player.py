@@ -14,3 +14,5 @@ class Player(arcade.Sprite):
         self.battleSprite = arcade.Sprite(self.battle_img, .275)
         self.battleSprite.center_x = start_x
         self.battleSprite.center_y = start_y + constants.TEXT_BOX_HEIGHT
+        self.battleSprite.screen_pos_x = start_x
+        self.battleSprite.screen_pos_y = start_y + constants.TEXT_BOX_HEIGHT

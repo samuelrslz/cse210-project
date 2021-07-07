@@ -17,6 +17,8 @@ class Professor(arcade.Sprite):
         self.battleSprite = arcade.Sprite(self.battle_img, .4)
         self.battleSprite.center_x = constants.SCREEN_WIDTH - 200
         self.battleSprite.center_y = constants.SCREEN_HEIGHT - 200
+        self.battleSprite.screen_pos_x = constants.SCREEN_WIDTH - 200
+        self.battleSprite.screen_pos_y = constants.SCREEN_HEIGHT - 200
 
         self.attack_names = attacks["names"]
 

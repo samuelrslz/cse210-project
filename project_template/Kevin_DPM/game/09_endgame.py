@@ -10,6 +10,9 @@ from professor import Professor
 from player import Player
 from battle_moves import Battle_Moves
 
+# https://www.youtube.com/watch?v=L_UZvW557lM&ab_channel=TURPAK%7CBackgroundMusicforVideos
+
+
 class MyGame(arcade.Window):
     """
     Main application class.
@@ -179,7 +182,7 @@ class MyGame(arcade.Window):
             self._scene.display(self.all_sprites_list)
 
         else:
-            self._scene.battle_display(self.player_list[0], self.professor_list[0])
+            self._scene.battle_display(self.player_list[0], self.professor_list[0], self.view_left, self.view_bottom)
         
 
         if self.show_text:
@@ -190,7 +193,7 @@ class MyGame(arcade.Window):
                             constants.SCREEN_WIDTH, constants.TEXT_BOX_HEIGHT, arcade.csscolor.WHITE)
                 
                 
-                text = "asdf"
+                text = ""
                 if not self._scene.battle_scene:
                     text = self._text.meet_prof_text(self.professor_list[0].professor_name)
                 else:
@@ -226,7 +229,6 @@ class MyGame(arcade.Window):
                 self._text.clear_text()
                 self._battle_moves.can_show_battle_moves = True
 
-
         else:
             self._controls.battle_scene_pressed(key, modifiers, self.show_text)
             if not self._battle_moves.has_chosen_move:
@@ -247,9 +249,7 @@ class MyGame(arcade.Window):
                 
                 if key == arcade.key.ENTER and self.show_text:
                     self._controls.can_proceed = True
-            # self
-
-        # print(self._battle_moves.has_chosen_move)
+                    
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
@@ -269,9 +269,13 @@ class MyGame(arcade.Window):
 
         if len(professor_collision) > 0:
             self.show_text = True
+            if professor_collision[0].task_health <= 0:
+                self._scene.battle_scene = False
+                self._battle_moves.can_show_battle_moves = False
+
         else:
-            
             self.show_text = False
+
 
         # Move the player with the physics engine
         self.physics_engine.update()
