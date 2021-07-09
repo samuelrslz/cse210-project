@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.5" tiledversion="1.7.0" orientation="orthogonal" renderorder="right-down" width="200" height="200" tilewidth="128" tileheight="128" infinite="0" nextlayerid="3" nextobjectid="1">
+ <tileset firstgid="1" name="Background" tilewidth="128" tileheight="128" tilecount="3" columns="0">
+  <grid orientation="orthogonal" width="1" height="1"/>
+  <tile id="0">
+   <image width="128" height="128" source="../images/custom_tiles/grass.png"/>
+  </tile>
+  <tile id="1">
+   <image width="128" height="128" source="../images/custom_tiles/concrete.png"/>
+  </tile>
+  <tile id="2">
+   <image width="128" height="128" source="../images/custom_tiles/dirt.png"/>
+  </tile>
+ </tileset>
+ <tileset firstgid="4" name="Platforms" tilewidth="4340" tileheight="1947" tilecount="12" columns="0">
+  <grid orientation="orthogonal" width="1" height="1"/>
+  <tile id="0">
+   <image width="4340" height="1187" source="../images/custom_tiles/STC.png"/>
+  </tile>
+  <tile id="1">
+   <image width="3479" height="1947" source="../images/custom_tiles/TAYLOR.png"/>
+  </tile>
+  <tile id="2">
+   <image width="342" height="606" source="../images/custom_tiles/hinckley_sign.png"/>
+  </tile>
+  <tile id="3">
+   <image width="3172" height="1337" source="../images/custom_tiles/hinckley.png"/>
+  </tile>
+  <tile id="4">
+   <image width="342" height="606" source="../images/custom_tiles/stc_sign.png"/>
+  </tile>
+  <tile id="5">
+   <image width="342" height="606" source="../images/custom_tiles/taylor_sign.png"/>
+  </tile>
+  <tile id="6">
+   <image width="267" height="514" source="../images/custom_tiles/tree1.png"/>
+  </tile>
+  <tile id="7">
+   <image width="381" height="414" source="../images/custom_tiles/tree2.png"/>
+  </tile>
+  <tile id="8">
+   <image width="548" height="424" source="../images/custom_tiles/tree3.png"/>
+  </tile>
+  <tile id="9">
+   <image width="410" height="486" source="../images/custom_tiles/tree4.png"/>
+  </tile>
+  <tile id="10">
+   <image width="282" height="465" source="../images/custom_tiles/tree5.png"/>
+  </tile>
+  <tile id="11">
+   <image width="469" height="461" source="../images/custom_tiles/tree6.png"/>
+  </tile>
+ </tileset>
+ <layer id="2" name="Background" width="200" height="200">
+  <data encoding="base64" compression="zstd">
+   KLUv/aAAcQIAtAQARAMCAAAAAQIBAgECAQIBAgECAQIBAgEDAQIBAwECAQMBAgEDAQIBAwECAQMBAgEDAwMCAwICN6BQfA3gxdoBdLY1x1J89fDgB6cvVmjhrBHtKlqiyDayCinBVanjrHFVIcwQV3WDbHBVkbUSl6qyw4yrwrhEcalAiqsCaVwVSHFVgRRXBVJcVZDiqkCKq8o+mYCF850CRQAAAAEA/fC7AwI=
+  </data>
+ </layer>
+ <layer id="1" name="Platforms" width="200" height="200">
+  <data encoding="base64" compression="zstd">
+   KLUv/aAAcQIAfAAAGAAFAAIA+ymgI38VuWMDA4gDAA==
+  </data>
+ </layer>
+</map>
