@@ -62,7 +62,7 @@ class MyGame(arcade.Window):
         self.level = 1
 
         # Load sounds
-        self.jump_sound = arcade.load_sound(":resources:sounds/jump1.wav")
+        self.background = arcade.load_sound("project_template/Kevin_DPM/assets/music/Powerup.mp3")
         self.game_over = arcade.load_sound(":resources:sounds/gameover1.wav")
 
         # Keep track of whether or not you are in contact with a professor to show text
@@ -97,7 +97,7 @@ class MyGame(arcade.Window):
                                             constants.PLAYER_START_X, constants.PLAYER_START_Y)
         self.player_list.append(self.player_sprite)
 
-
+        arcade.play_sound(self.background)
 
         # Set up the player, specifically placing it at these coordinates.
         prof_name = "Phillips"
