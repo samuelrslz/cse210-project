@@ -38,6 +38,14 @@ class Text():
         text = f"Professor {prof_name} used {prof_move}. You used {player_move}."
         return self.print_text(text,show_has_finished)
 
+    def battle_lost_text(self, show_has_finished = False):
+        text = "You are out of stamina, you can't continue."
+        return self.print_text(text,show_has_finished)
+        
+    def battle_won_text(self, additional_text, show_has_finished = False):
+        text = f"You managed to accomplish all of my tasks! {additional_text}"
+        return self.print_text(text,show_has_finished)
+
     def group_by_words(self, text):
         return text.split()
 
