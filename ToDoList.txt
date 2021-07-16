@@ -1,0 +1,15 @@
+To do:
+
+------------------------------------
+TOP PRIORITY: UPDATE THE README FILE!!!
+------------------------------------
+
+Create a rest area (Temple, vending machine, Kira Peters)
+
+Create a TA (Kira Peters) that will help you increase your stamina
+
+Add the other professors
+
+Add the end scene
+
+Fix errors?

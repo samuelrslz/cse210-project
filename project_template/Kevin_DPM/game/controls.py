@@ -39,7 +39,8 @@ class Controls:
         elif key == arcade.key.RIGHT or key == arcade.key.D:
             self.change_x = 0
 
-        if key == arcade.key.ENTER and showing_text:
+        if key == arcade.key.ENTER:
+        # if key == arcade.key.ENTER and showing_text:
             self.can_proceed = False
 
     

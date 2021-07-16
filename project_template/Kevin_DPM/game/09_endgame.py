@@ -28,6 +28,8 @@ class MyGame(arcade.Window):
         # These are 'lists' that keep track of our sprites. Each sprite should
         # go into a list.
         self.wall_list = None
+        self.temple_list = None
+        self.machines_list = None
         self.foreground_list = None
         self.background_list = None
         self.dont_touch_list = None
@@ -64,10 +66,10 @@ class MyGame(arcade.Window):
         self.level = 1
 
         # Load sounds
-        self.music_string = "project_template/Kevin_DPM/assets/music/"
-        self.background_music = ["dubHub.mp3", "happy8-bit.mp3", "Powerup.mp3"]
-        self.battle_music = ["digestiveBiscuit.mp3", "Megalovania.mp3", "MountainTrails.mp3"]
-        self.game_over = arcade.load_sound(":resources:sounds/gameover1.wav")
+        # self.music_string = constants.MUSIC_PATH
+        self.background_music = [constants.DUB_HUB, constants.HAPPY8_BIT, constants.POWERUP]
+        self.battle_music = [constants.DIGESTIVE_BISCUIT, constants.MEGALOVANIA, constants.MOUNTAIN_TRAILS]
+        # self.game_over = arcade.load_sound(":resources:sounds/gameover1.wav")
         self.music = None
         self.current_player = None
 
@@ -88,17 +90,18 @@ class MyGame(arcade.Window):
 
         # Play the next song
         # print(f"Playing {self.music_list[self.current_song_index]}")
-        self.music = arcade.Sound(self.music_string + song, streaming=True)
+        self.music = arcade.Sound(song, streaming=True)
         self.current_player = self.music.play(constants.MUSIC_VOLUME)
         # This is a quick delay. If we don't do this, our elapsed time is 0.0
         # and on_update will think the music is over and advance us to the next
         # song before starting this one.
-        time.sleep(0.03)
+        # time.sleep(0.03)
 
     def setup(self, level):
         """ Set up the game here. Call this function to restart the game. """
 
-        self.main_menu_img = arcade.load_texture("project_template/Kevin_DPM/assets/images/screens/main_screen.png")
+        # self.main_menu_img = arcade.load_texture("project_template/Kevin_DPM/assets/images/screens/main_screen.png")
+        self.main_menu_img = arcade.load_texture(constants.MAIN_MENU)
 
         # Used to keep track of our scrolling
         self.view_bottom = 0
@@ -113,10 +116,11 @@ class MyGame(arcade.Window):
         self.foreground_list = arcade.SpriteList()
         self.background_list = arcade.SpriteList()
         self.wall_list = arcade.SpriteList()
+        self.temple_list = arcade.SpriteList()
 
         # Set up the player, specifically placing it at these coordinates.
-        main_image_source = "project_template/Kevin_DPM/assets/images/kevin/kevin_standing.png"
-        battle_image_source = "project_template/Kevin_DPM/assets/images/kevin/kevin_battle.png"
+        main_image_source = constants.KEVIN_STANDING
+        battle_image_source = constants.KEVIN_BATTLE
         
         player_images = [main_image_source, battle_image_source]
         self.player_sprite = Player(player_images,
@@ -126,15 +130,15 @@ class MyGame(arcade.Window):
 
         # Set up the player, specifically placing it at these coordinates.
         prof_name = "Phillips"
-        main_image_source = f"project_template/Kevin_DPM/assets/images/custom_tiles/{prof_name.lower()}.png"
-        battle_image_source = f"project_template/Kevin_DPM/assets/images/professors/{prof_name.lower()}.png"
+        main_image_source = constants.PHILLIPS_STANDING
+        battle_image_source = constants.PHILLIPS_BATTLE
         attacks = {
             "names": ["Program a loop", "Define a function"],
             "damage": [1, 2]
         }
         professor_images = [main_image_source, battle_image_source]
         self.professor_sprite = Professor(professor_images, prof_name, 
-                                            constants.PHILLIPS_START_X, constants.PHILLIPS_START_Y, attacks, 3, "rest")
+                                            constants.PHILLIPS_START_X, constants.PHILLIPS_START_Y, attacks, 3, "Monster Drink")
         self.professor_list.append(self.professor_sprite)
 
 
@@ -147,11 +151,16 @@ class MyGame(arcade.Window):
         # Name of the layer that has items for background
         background_layer_name = 'Background'
 
+        temple_layer_name = 'Temple'
+
+        machines_layer_name = 'Machines'
+
         # Map name
-        map_name = f"project_template/Kevin_DPM/assets/maps/byui.tmx"
+        map_name = constants.MAP
 
         # Load Battle image
-        self.battle_images = [arcade.load_texture("project_template/Kevin_DPM/assets/images/battle_scenes/battle_mc.png")]
+        self.battle_images = []
+        self.battle_images.append(arcade.load_texture(constants.BATTLE_BACKGROUNDS))
 
         # Read in the tiled map
         my_map = arcade.tilemap.read_tmx(map_name)
@@ -174,6 +183,16 @@ class MyGame(arcade.Window):
                                                       layer_name=platforms_layer_name,
                                                       scaling=constants.TILE_SCALING,
                                                       use_spatial_hash=True)
+        # -- Temple                                            
+        self.temple_list = arcade.tilemap.process_layer(map_object=my_map,
+                                                      layer_name=temple_layer_name,
+                                                      scaling=constants.TILE_SCALING,
+                                                      use_spatial_hash=True)
+
+        self.machines_list = arcade.tilemap.process_layer(map_object=my_map,
+                                                      layer_name=machines_layer_name,
+                                                      scaling=constants.TILE_SCALING,
+                                                      use_spatial_hash=True)
 
         # --- Other stuff
         # Set the background color
@@ -194,6 +213,8 @@ class MyGame(arcade.Window):
         self.all_sprites_list.append(self.wall_list)
         self.all_sprites_list.append(self.professor_list)
         self.all_sprites_list.append(self.player_list)
+        self.all_sprites_list.append(self.temple_list)
+        self.all_sprites_list.append(self.machines_list)
         self.all_sprites_list.append(self.foreground_list)
 
 
@@ -297,6 +318,7 @@ class MyGame(arcade.Window):
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
+        
         if self._scene.show_main_menu:
             if key == arcade.key.ENTER:
                 # Exit main menu
@@ -310,9 +332,11 @@ class MyGame(arcade.Window):
             self._controls.main_scene_pressed(key, modifiers, self.show_text)
             self.player_sprite.change_x, self.player_sprite.change_y = self._controls.change_x, self._controls.change_y
             
+            
             self._scene.battle_scene = self._controls.can_proceed
 
-            if self._scene.battle_scene:
+            
+            if self._scene.battle_scene and self.with_professor:
                 self._text.clear_text()
                 self._battle_moves.can_show_battle_moves = True
 
@@ -333,7 +357,7 @@ class MyGame(arcade.Window):
                     self.player_list[0].stamina -= self.with_professor.attacks_damage[random_move]
                     if self._battle_moves.moves[self._battle_moves.current_move] == "attempt":
                         self.with_professor.task_health -= 1
-                    if self._battle_moves.moves[self._battle_moves.current_move] == "rest":
+                    if self._battle_moves.moves[self._battle_moves.current_move] == "Monster Drink":
                         self.player_list[0].stamina += 3
 
             else:                    
@@ -362,6 +386,14 @@ class MyGame(arcade.Window):
             if len(professor_collision) > 0:
                 self.with_professor = professor_collision[0]
                 self.show_text = True
+
+                if self._scene.battle_scene:
+                    
+                    # Repeat Music!
+                    if not self.music.is_playing(self.current_player):
+                        
+                        self.play_song(random.choice(self.battle_music))
+
                 # if professor_collision[0].task_health <= 0:
                     # if self._scene.battle_scene:
                     #     self.play_song(random.choice(self.background_music))
