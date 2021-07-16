@@ -1,4 +1,4 @@
-
+import os
 # Constants
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 800
@@ -34,3 +34,30 @@ TEXT_BOX_HEIGHT = 160
 
 MUSIC_VOLUME = 0.5
 
+# IMAGES
+
+PATH = os.path.dirname(os.path.abspath(__file__))
+MAIN_MENU = os.path.join(PATH, "..", "assets", "images", "screens", "main_screen.png")
+
+KEVIN_STANDING = os.path.join(PATH, "..", "assets", "images", "kevin", "kevin_standing.png")
+KEVIN_BATTLE = os.path.join(PATH, "..", "assets", "images", "kevin", "kevin_battle.png")
+
+PHILLIPS_STANDING = os.path.join(PATH, "..", "assets", "images", "custom_tiles", "phillips.png")
+PHILLIPS_BATTLE = os.path.join(PATH, "..", "assets", "images", "professors", "phillips.png")
+
+MAP = os.path.join(PATH, "..", "assets", "maps", "byui.tmx")
+
+BATTLE_BACKGROUNDS = os.path.join(PATH, "..", "assets", "images", "battle_scenes", "battle_mc.png")
+
+# MUSIC
+MUSIC_PATH = os.path.join(PATH, "..", "assets", "music")
+DUB_HUB = os.path.join(MUSIC_PATH, "dubHub.mp3")
+HAPPY8_BIT = os.path.join(MUSIC_PATH, "happy8-bit.mp3")
+POWERUP = os.path.join(MUSIC_PATH, "Powerup.mp3")
+DIGESTIVE_BISCUIT = os.path.join(MUSIC_PATH, "digestiveBiscuit.mp3")
+MEGALOVANIA = os.path.join(MUSIC_PATH, "Megalovania.mp3")
+MOUNTAIN_TRAILS = os.path.join(MUSIC_PATH, "MountainTrails.mp3")
+#  = os.path.join(MUSIC_PATH, ".mp3")
+
+# Temple
+# Machines
