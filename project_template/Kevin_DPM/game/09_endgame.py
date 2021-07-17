@@ -144,7 +144,7 @@ class MyGame(arcade.Window):
         # Set up Kira TA
         self.kira_list.append(self._kira)
 
-        # Set up the player, specifically placing it at these coordinates.
+        # Professor Phillips.
         prof_name = "Phillips"
         main_image_source = constants.PHILLIPS_STANDING
         battle_image_source = constants.PHILLIPS_BATTLE
@@ -153,9 +153,55 @@ class MyGame(arcade.Window):
             "damage": [1, 2]
         }
         tip = "Press 'M' to see the map"
+        required_level = 1
         professor_images = [main_image_source, battle_image_source]
         self.professor_sprite = Professor(professor_images, prof_name, 
-                                            constants.PHILLIPS_START_X, constants.PHILLIPS_START_Y, attacks, 3, "Monster Drink", tip)
+                                            constants.PHILLIPS_START_X, constants.PHILLIPS_START_Y, attacks, 3, "Monster Drink", tip, required_level)
+        self.professor_list.append(self.professor_sprite)
+        
+        # Sister Anderson
+        prof_name = "Anderson"
+        main_image_source = constants.ANDERSON_STANDING
+        battle_image_source = constants.ANDERSON_BATTLE
+        attacks = {
+            "names": ["Create an Algorithm", "Debugging practice"],
+            "damage": [2, 3]
+        }
+        tip = "Press 'M' to see the map"
+        required_level = 2
+        professor_images = [main_image_source, battle_image_source]
+        self.professor_sprite = Professor(professor_images, prof_name, 
+                                            constants.ANDERSON_START_X, constants.ANDERSON_START_Y, attacks, 6, "Debug",tip, required_level)
+        self.professor_list.append(self.professor_sprite)
+
+        # Brother Gibbons
+        prof_name = "Gibbons"
+        main_image_source = constants.GIBBONS_STANDING
+        battle_image_source = constants.GIBBONS_BATTLE
+        attacks = {
+            "names": ["Create Database", "Build a Website"],
+            "damage": [3, 4]
+        }
+        tip = "Press 'M' to see the map"
+        required_level = 3
+        professor_images = [main_image_source, battle_image_source]
+        self.professor_sprite = Professor(professor_images, prof_name, 
+                                            constants.GIBBONS_START_X, constants.GIBBONS_START_Y, attacks, 12, "Stack Overflow",tip, required_level)
+        self.professor_list.append(self.professor_sprite)
+
+        # Brother Manley
+        prof_name = "Manley"
+        main_image_source = constants.MANLEY_STANDING
+        battle_image_source = constants.MANLEY_BATTLE
+        attacks = {
+            "names": ["Make a video game", "Find an internship"],
+            "damage": [4, 5]
+        }
+        tip = "Press 'M' to see the map"
+        required_level = 4
+        professor_images = [main_image_source, battle_image_source]
+        self.professor_sprite = Professor(professor_images, prof_name, 
+                                            constants.MANLEY_START_X, constants.MANLEY_START_Y, attacks, 24, "Indian coding youtuber",tip, required_level)
         self.professor_list.append(self.professor_sprite)
 
 
@@ -259,13 +305,15 @@ class MyGame(arcade.Window):
             if self._kira.showing_game:
                 self._mini_game.draw_game(self.view_left, self.view_bottom)
 
+            self.player_list[0].draw_level_and_money(self.view_left, self.view_bottom)
+
 
         else:
             if self.with_professor != None:
                 self._scene.battle_display(self.player_list[0], self.with_professor, self.view_left, self.view_bottom, self.battle_images[0])
             else: 
                 self._scene.battle_scene = False
-        print(self._battle_moves.has_chosen_move)
+                
         # Do we show text?
         if self.show_text:
             # Draw our text on the screen, scrolling it with the viewport
@@ -278,7 +326,11 @@ class MyGame(arcade.Window):
                 
                 text = ""
                 if not self._scene.battle_scene and not self._kira.with_player:
-                    text = self._text.meet_prof_text(self.with_professor.professor_name)
+                    if self.player_list[0].level >= self.with_professor.required_level:
+                        text = self._text.meet_prof_text(self.with_professor.professor_name)
+                    else:
+                        text = self._text.must_be_higher_level_to_battle(self.player_list[0].level, self.with_professor.required_level)
+
                 elif self._kira.with_player:
                     
                     # text_with_check = ""
@@ -289,7 +341,7 @@ class MyGame(arcade.Window):
                     else:
                         text_with_check = self._text.print_text(self._kira.text_options[self._kira.current_text][0], show_has_finished=True)
                     text = text_with_check[0]
-                    # print(text_with_check)
+                    
                     if not self._kira.showing_game and self._controls.can_proceed and text_with_check[1]:
                         self._text.clear_text()
                         self._kira.current_text += 1
@@ -321,6 +373,7 @@ class MyGame(arcade.Window):
                             self._text.clear_text()
                             # self.professor_list
 
+                    # If the player has won
                     elif self.with_professor.task_health <= 0:
                         additional_text = f"You can use the move {self.with_professor.new_move}. Also {self.with_professor.tip}."
                         text_with_check = self._text.battle_won_text(additional_text, show_has_finished = True)
@@ -338,6 +391,10 @@ class MyGame(arcade.Window):
                             if not self.with_professor.new_move in self._battle_moves.moves: 
                                 self._battle_moves.moves[self._battle_moves.moves.index("None")] = self.with_professor.new_move
                                 self.player_list[0].stamina_max += 5
+
+                                # If the player's level is equal to the required level increase the player's level
+                                if self.player_list[0].level == self.with_professor.required_level:
+                                    self.player_list[0].level += 1
                             
                             # Otherwise give them more money
                             else:
@@ -388,7 +445,9 @@ class MyGame(arcade.Window):
             self.player_sprite.change_x, self.player_sprite.change_y = self._controls.change_x, self._controls.change_y
             
             if self.with_professor:
-                self._scene.battle_scene = self._controls.can_proceed
+                # Is the player's level high enough
+                if self.player_list[0].level >= self.with_professor.required_level:
+                    self._scene.battle_scene = self._controls.can_proceed
 
             
             if self._scene.battle_scene and self.with_professor:
@@ -508,7 +567,7 @@ class MyGame(arcade.Window):
                 self._vending_machine_screen.has_left = False
 
             self._kira.with_player = arcade.check_for_collision(self.player_sprite, self._kira)
-            # print(self._kira.current_text)
+            
             if not self._kira.with_player:
                 self._kira.current_text = 0
                 self._mini_game.won = False
@@ -548,8 +607,6 @@ class MyGame(arcade.Window):
                     # self.professor_list[i].move_random()
                     self.professor_list[i].move()
                 # prof = self.professor_list[0]
-                # print(prof.outside_of_x_bounds_left(),prof.outside_of_x_bounds_right(),prof.outside_of_y_bounds_up(),prof.outside_of_y_bounds_down())
-
 
         # Move the player with the physics engine
         self.physics_engine.update()

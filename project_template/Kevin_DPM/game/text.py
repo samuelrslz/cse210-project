@@ -34,6 +34,10 @@ class Text():
         text = f"Professor {prof_name} wants to battle you! Press 'ENTER' to battle"
         return self.print_text(text,show_has_finished)
 
+    def must_be_higher_level_to_battle(self, player_level, required_level, show_has_finished = False):
+        text = f"You must be level {required_level} to battle me. You are at level {player_level}"
+        return self.print_text(text, show_has_finished)
+
     def battle_prof_text(self, prof_name, prof_move, player_move, show_has_finished = False):
         text = f"Professor {prof_name} used {prof_move}. You used {player_move}."
         return self.print_text(text,show_has_finished)
