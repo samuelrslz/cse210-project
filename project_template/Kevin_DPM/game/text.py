@@ -43,7 +43,7 @@ class Text():
         return self.print_text(text,show_has_finished)
         
     def battle_won_text(self, additional_text, show_has_finished = False):
-        text = f"You managed to accomplish all of my tasks! {additional_text}"
+        text = f"Congratulations! {additional_text}"
         return self.print_text(text,show_has_finished)
 
     def group_by_words(self, text):

@@ -30,6 +30,9 @@ PLAYER_START_Y = 225
 PHILLIPS_START_X = 5 * SPRITE_PIXEL_SIZE/2
 PHILLIPS_START_Y = 5 * SPRITE_PIXEL_SIZE/2
 
+KIRA_X = 74 * SPRITE_PIXEL_SIZE/2
+KIRA_Y = 52 * SPRITE_PIXEL_SIZE/2
+
 TEXT_BOX_HEIGHT = 160
 
 MUSIC_VOLUME = 0.5
@@ -42,10 +45,13 @@ MAIN_MENU = os.path.join(PATH, "..", "assets", "images", "screens", "main_screen
 KEVIN_STANDING = os.path.join(PATH, "..", "assets", "images", "kevin", "kevin_standing.png")
 KEVIN_BATTLE = os.path.join(PATH, "..", "assets", "images", "kevin", "kevin_battle.png")
 
+KIRA_IMG = os.path.join(PATH, "..", "assets", "images", "custom_tiles", "kira.png")
+
 PHILLIPS_STANDING = os.path.join(PATH, "..", "assets", "images", "custom_tiles", "phillips.png")
 PHILLIPS_BATTLE = os.path.join(PATH, "..", "assets", "images", "professors", "phillips.png")
 
 MAP = os.path.join(PATH, "..", "assets", "maps", "byui.tmx")
+MINI_MAP = os.path.join(PATH, "..", "assets", "maps", "map.png")
 
 BATTLE_BACKGROUNDS = os.path.join(PATH, "..", "assets", "images", "battle_scenes", "battle_mc.png")
 
