@@ -13,6 +13,7 @@ class Controls:
         self.x_index = 0
         self.y_index = 0
         self.current_index = self._move_box[self.y_index][self.x_index]
+        self.can_show_mini_map = False
     
 
     def main_scene_pressed(self, key, modifiers, showing_text):
@@ -26,6 +27,9 @@ class Controls:
         elif key == arcade.key.RIGHT or key == arcade.key.D:
             self.change_x = constants.PLAYER_MOVEMENT_SPEED
             
+        if key == arcade.key.M:
+            self.can_show_mini_map = True
+            
         if key == arcade.key.ENTER and showing_text:
             self.can_proceed = True
 
@@ -38,6 +42,9 @@ class Controls:
             self.change_x = 0
         elif key == arcade.key.RIGHT or key == arcade.key.D:
             self.change_x = 0
+            
+        if key == arcade.key.M:
+            self.can_show_mini_map = False
 
         if key == arcade.key.ENTER:
         # if key == arcade.key.ENTER and showing_text:
@@ -54,7 +61,7 @@ class Controls:
             self.x_index = 0
         elif key == arcade.key.RIGHT or key == arcade.key.D:
             self.x_index = 1
-            
+        
         if key == arcade.key.ENTER and showing_text:
             self.can_proceed = True
 
@@ -82,6 +89,28 @@ class Controls:
         
             
     def vending_screen_released(self, key, modifiers):
+
+        if key == arcade.key.ENTER:
+            self.can_proceed = False
+
+    
+    def mini_game_pressed(self, key, modifiers):
+        """Called whenever a key is pressed. """
+        if key == arcade.key.LEFT or key == arcade.key.A:
+            self.change_x = -1
+        elif key == arcade.key.RIGHT or key == arcade.key.D:
+            self.change_x = 1
+            
+        # if key == arcade.key.ENTER:
+        #     self.can_proceed = True
+
+        
+            
+    def mini_game_released(self, key, modifiers):
+        if key == arcade.key.LEFT or key == arcade.key.A:
+            self.change_x = 0
+        elif key == arcade.key.RIGHT or key == arcade.key.D:
+            self.change_x = 0
 
         if key == arcade.key.ENTER:
             self.can_proceed = False

@@ -12,6 +12,9 @@ from professor import Professor
 from player import Player
 from battle_moves import Battle_Moves
 from vending_machine import Vending_machine_screen
+from mini_map import Mini_map
+from kira import Kira
+from mini_game import Mini_game
 
 # https://www.youtube.com/watch?v=L_UZvW557lM&ab_channel=TURPAK%7CBackgroundMusicforVideos
 
@@ -50,10 +53,16 @@ class MyGame(arcade.Window):
         self._scene = Scene()
         # Bring in the text class
         self._text = Text()
-        # Bring in the text class
+        # Bring in the Battle_Moves class
         self._battle_moves = Battle_Moves()
-        # Bring in the text class
+        # Bring in the Vending_machine_screen class
         self._vending_machine_screen = Vending_machine_screen()
+        # Bring in the Mini_map class
+        self._mini_map = Mini_map()
+        # Bring in the Kira class
+        self._kira = Kira()
+        # Bring in the Mini_game class
+        self._mini_game = Mini_game()
 
         # Used to keep track of our scrolling
         self.view_bottom = 0
@@ -120,6 +129,7 @@ class MyGame(arcade.Window):
         self.background_list = arcade.SpriteList()
         self.wall_list = arcade.SpriteList()
         self.temple_list = arcade.SpriteList()
+        self.kira_list = arcade.SpriteList()
 
         # Set up the player, specifically placing it at these coordinates.
         main_image_source = constants.KEVIN_STANDING
@@ -130,6 +140,9 @@ class MyGame(arcade.Window):
                                             constants.PLAYER_START_X, constants.PLAYER_START_Y)
         self.player_list.append(self.player_sprite)
 
+
+        # Set up Kira TA
+        self.kira_list.append(self._kira)
 
         # Set up the player, specifically placing it at these coordinates.
         prof_name = "Phillips"
@@ -142,7 +155,7 @@ class MyGame(arcade.Window):
         tip = "Press 'M' to see the map"
         professor_images = [main_image_source, battle_image_source]
         self.professor_sprite = Professor(professor_images, prof_name, 
-                                            constants.PHILLIPS_START_X, constants.PHILLIPS_START_Y, attacks, 3, "Monster Drink",tip)
+                                            constants.PHILLIPS_START_X, constants.PHILLIPS_START_Y, attacks, 3, "Monster Drink", tip)
         self.professor_list.append(self.professor_sprite)
 
 
@@ -216,6 +229,7 @@ class MyGame(arcade.Window):
         self.all_sprites_list.append(self.background_list)
         self.all_sprites_list.append(self.wall_list)
         self.all_sprites_list.append(self.professor_list)
+        self.all_sprites_list.append(self.kira_list)
         self.all_sprites_list.append(self.player_list)
         self.all_sprites_list.append(self.temple_list)
         self.all_sprites_list.append(self.machines_list)
@@ -238,13 +252,20 @@ class MyGame(arcade.Window):
             self._scene.display(self.all_sprites_list)
             if self._vending_machine_screen.show_vending_screen:
                 self._vending_machine_screen.draw_vending_screen( self.view_left, self.view_bottom)
+            
+            if self._controls.can_show_mini_map:
+                self._mini_map.draw_map(self.view_left, self.view_bottom)
+
+            if self._kira.showing_game:
+                self._mini_game.draw_game(self.view_left, self.view_bottom)
+
 
         else:
             if self.with_professor != None:
                 self._scene.battle_display(self.player_list[0], self.with_professor, self.view_left, self.view_bottom, self.battle_images[0])
             else: 
                 self._scene.battle_scene = False
-        
+        print(self._battle_moves.has_chosen_move)
         # Do we show text?
         if self.show_text:
             # Draw our text on the screen, scrolling it with the viewport
@@ -256,8 +277,31 @@ class MyGame(arcade.Window):
                 
                 
                 text = ""
-                if not self._scene.battle_scene:
+                if not self._scene.battle_scene and not self._kira.with_player:
                     text = self._text.meet_prof_text(self.with_professor.professor_name)
+                elif self._kira.with_player:
+                    
+                    # text_with_check = ""
+                    if self._mini_game.won:
+                        text_with_check = self._text.print_text(self._kira.text_options[self._kira.current_text][0], show_has_finished=True)
+                    elif self._mini_game.lost:
+                        text_with_check = self._text.print_text(self._kira.text_options[self._kira.current_text][1], show_has_finished=True)
+                    else:
+                        text_with_check = self._text.print_text(self._kira.text_options[self._kira.current_text][0], show_has_finished=True)
+                    text = text_with_check[0]
+                    # print(text_with_check)
+                    if not self._kira.showing_game and self._controls.can_proceed and text_with_check[1]:
+                        self._text.clear_text()
+                        self._kira.current_text += 1
+
+                        if self._kira.current_text != -1:
+                            self._kira.showing_game = True
+
+                        self._mini_game.won = False
+                        self._mini_game.lost = False
+                        self._mini_game.time_left = self._mini_game.time_max
+                        
+
                 else:
                     # Check if the player has chosen a move and if the player can still continue
                     if self._battle_moves.has_chosen_move and self.player_list[0].can_continue_battle and self.with_professor.task_health > 0:
@@ -278,7 +322,7 @@ class MyGame(arcade.Window):
                             # self.professor_list
 
                     elif self.with_professor.task_health <= 0:
-                        additional_text = f"Make sure you use the move {self.with_professor.new_move}"
+                        additional_text = f"You can use the move {self.with_professor.new_move}. Also {self.with_professor.tip}."
                         text_with_check = self._text.battle_won_text(additional_text, show_has_finished = True)
                         
                         text = text_with_check[0]
@@ -288,6 +332,7 @@ class MyGame(arcade.Window):
                             self._scene.battle_scene = False
                             self._battle_moves.can_show_battle_moves = False
                             self._text.clear_text()
+                            self._battle_moves.has_chosen_move = False
 
                             # Give the player a new move that the professor has for them if they don't already have it
                             if not self.with_professor.new_move in self._battle_moves.moves: 
@@ -298,7 +343,7 @@ class MyGame(arcade.Window):
                             else:
                                 self.player_list[0].money += 5
 
-
+                    # If the battle is over
                     elif not self.player_list[0].can_continue_battle:
                         text_with_check = self._text.battle_lost_text(show_has_finished = True)
                         
@@ -311,6 +356,8 @@ class MyGame(arcade.Window):
                             self._battle_moves.can_show_battle_moves = False
                             self.with_professor.task_health = self.with_professor.task_health_max
                             self.player_list[0].stamina = 1
+                            self.player_list[0].can_continue_battle = True
+                            self._battle_moves.has_chosen_move = False
                             self._text.clear_text()
                         
                 arcade.draw_text(text, 10 + self.view_left, constants.TEXT_BOX_HEIGHT/2 + self.view_bottom - 80,
@@ -322,7 +369,7 @@ class MyGame(arcade.Window):
                     
 
         else:
-            self._text.display_text = ""
+            self._text.clear_text()
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
@@ -336,12 +383,12 @@ class MyGame(arcade.Window):
                 self.play_song(random.choice(self.background_music))
                 # ---------------------------------------------------
 
-        elif not self._scene.battle_scene and not self._vending_machine_screen.show_vending_screen:
+        elif not self._scene.battle_scene and not self._vending_machine_screen.show_vending_screen and not self._kira.showing_game:
             self._controls.main_scene_pressed(key, modifiers, self.show_text)
             self.player_sprite.change_x, self.player_sprite.change_y = self._controls.change_x, self._controls.change_y
             
-            
-            self._scene.battle_scene = self._controls.can_proceed
+            if self.with_professor:
+                self._scene.battle_scene = self._controls.can_proceed
 
             
             if self._scene.battle_scene and self.with_professor:
@@ -355,6 +402,13 @@ class MyGame(arcade.Window):
             self._controls.vending_screen_pressed(key, modifiers)
             self._controls.update_current_index()
             self._vending_machine_screen.choice = self._controls.current_index
+
+        elif self._kira.showing_game:
+            self.player_sprite.change_x, self.player_sprite.change_y = 0,0
+            self._controls.mini_game_pressed(key, modifiers)
+            self._mini_game.player.change_x = self._controls.change_x
+            self._mini_game.stop = False
+            
 
         else:
             self._controls.battle_scene_pressed(key, modifiers, self.show_text)
@@ -384,11 +438,14 @@ class MyGame(arcade.Window):
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
-        if not self._scene.battle_scene and not self._vending_machine_screen.show_vending_screen:
+        if not self._scene.battle_scene and not self._vending_machine_screen.show_vending_screen and not self._kira.showing_game:
             self._controls.main_scene_released(key, modifiers, self.show_text)
             self.player_sprite.change_x, self.player_sprite.change_y = self._controls.change_x, self._controls.change_y
         elif self._vending_machine_screen.show_vending_screen:
             self._controls.vending_screen_released(key, modifiers)
+        elif self._kira.showing_game:
+            self._controls.mini_game_released(key, modifiers)
+            self._mini_game.player.change_x = self._controls.change_x
         else:
             self._controls.battle_scene_released(key, modifiers, self.show_text)
             self._controls.update_current_index()
@@ -449,6 +506,32 @@ class MyGame(arcade.Window):
             else:
                 self._vending_machine_screen.show_vending_screen = False
                 self._vending_machine_screen.has_left = False
+
+            self._kira.with_player = arcade.check_for_collision(self.player_sprite, self._kira)
+            # print(self._kira.current_text)
+            if not self._kira.with_player:
+                self._kira.current_text = 0
+                self._mini_game.won = False
+                self._mini_game.lost = False
+                self._mini_game.time_left = self._mini_game.time_max
+
+            elif self._kira.with_player and not self.with_professor:
+                self.show_text = True
+                if self._kira.showing_game and (not self._mini_game.won or not self._mini_game.lost):
+                    self._mini_game.update_game()
+
+                    if self._mini_game.won:
+                        self._kira.current_text = -1
+                        self.player_list[0].stamina_max += 1
+                        self._kira.showing_game = False
+                        self._mini_game.enemy_list = []
+                        self._text.clear_text()
+                    elif self._mini_game.lost:
+                        self._kira.current_text = -1
+                        self._kira.showing_game = False
+                        self._mini_game.enemy_list = []
+                        self._text.clear_text()
+
 
 
             if not self._scene.battle_scene:
