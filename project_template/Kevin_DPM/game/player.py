@@ -17,3 +17,5 @@ class Player(arcade.Sprite):
         self.battleSprite.screen_pos_x = start_x
         self.battleSprite.screen_pos_y = start_y + constants.TEXT_BOX_HEIGHT
         self.can_continue_battle = True
+        self.monsters = 0
+        self.money = 50
