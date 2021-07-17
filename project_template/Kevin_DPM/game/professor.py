@@ -5,7 +5,7 @@ import random as r
 class Professor(arcade.Sprite):
     
 
-    def __init__(self, images, name, start_x, start_y, attacks, task_size, move_to_give):
+    def __init__(self, images, name, start_x, start_y, attacks, task_size, move_to_give, tip):
         super().__init__(images[0], constants.CHARACTER_SCALING)
         self.start_x = start_x
         self.start_y = start_y
@@ -26,6 +26,8 @@ class Professor(arcade.Sprite):
         self.battle_img = images[1]
         self.task_health_max = task_size
         self.task_health = self.task_health_max
+
+        self.tip = tip
 
         
         self.battleSprite = arcade.Sprite(self.battle_img, .4)
