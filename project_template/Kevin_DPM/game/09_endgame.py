@@ -11,6 +11,7 @@ from scene import Scene
 from professor import Professor
 from player import Player
 from battle_moves import Battle_Moves
+from vending_machine import Vending_machine_screen
 
 # https://www.youtube.com/watch?v=L_UZvW557lM&ab_channel=TURPAK%7CBackgroundMusicforVideos
 
@@ -51,6 +52,8 @@ class MyGame(arcade.Window):
         self._text = Text()
         # Bring in the text class
         self._battle_moves = Battle_Moves()
+        # Bring in the text class
+        self._vending_machine_screen = Vending_machine_screen()
 
         # Used to keep track of our scrolling
         self.view_bottom = 0
@@ -136,9 +139,10 @@ class MyGame(arcade.Window):
             "names": ["Program a loop", "Define a function"],
             "damage": [1, 2]
         }
+        tip = "Press 'M' to see the map"
         professor_images = [main_image_source, battle_image_source]
         self.professor_sprite = Professor(professor_images, prof_name, 
-                                            constants.PHILLIPS_START_X, constants.PHILLIPS_START_Y, attacks, 3, "Monster Drink")
+                                            constants.PHILLIPS_START_X, constants.PHILLIPS_START_Y, attacks, 3, "Monster Drink",tip)
         self.professor_list.append(self.professor_sprite)
 
 
@@ -232,6 +236,8 @@ class MyGame(arcade.Window):
         elif not self._scene.battle_scene:
             # Draw our sprites
             self._scene.display(self.all_sprites_list)
+            if self._vending_machine_screen.show_vending_screen:
+                self._vending_machine_screen.draw_vending_screen( self.view_left, self.view_bottom)
 
         else:
             if self.with_professor != None:
@@ -284,13 +290,14 @@ class MyGame(arcade.Window):
                             self._text.clear_text()
 
                             # Give the player a new move that the professor has for them if they don't already have it
-                            # Otherwise give them more energy drinks
                             if not self.with_professor.new_move in self._battle_moves.moves: 
                                 self._battle_moves.moves[self._battle_moves.moves.index("None")] = self.with_professor.new_move
                                 self.player_list[0].stamina_max += 5
+                            
+                            # Otherwise give them more money
+                            else:
+                                self.player_list[0].money += 5
 
-                            # else:
-                                
 
                     elif not self.player_list[0].can_continue_battle:
                         text_with_check = self._text.battle_lost_text(show_has_finished = True)
@@ -303,6 +310,7 @@ class MyGame(arcade.Window):
                             self._scene.battle_scene = False
                             self._battle_moves.can_show_battle_moves = False
                             self.with_professor.task_health = self.with_professor.task_health_max
+                            self.player_list[0].stamina = 1
                             self._text.clear_text()
                         
                 arcade.draw_text(text, 10 + self.view_left, constants.TEXT_BOX_HEIGHT/2 + self.view_bottom - 80,
@@ -310,7 +318,7 @@ class MyGame(arcade.Window):
             
             else:
                 self._battle_moves.current_move = self._controls.current_index
-                self._battle_moves.draw_all_moves(self.view_left, self.view_bottom)
+                self._battle_moves.draw_all_moves(self.view_left, self.view_bottom, self.player_list[0].monsters)
                     
 
         else:
@@ -328,7 +336,7 @@ class MyGame(arcade.Window):
                 self.play_song(random.choice(self.background_music))
                 # ---------------------------------------------------
 
-        elif not self._scene.battle_scene:
+        elif not self._scene.battle_scene and not self._vending_machine_screen.show_vending_screen:
             self._controls.main_scene_pressed(key, modifiers, self.show_text)
             self.player_sprite.change_x, self.player_sprite.change_y = self._controls.change_x, self._controls.change_y
             
@@ -342,6 +350,11 @@ class MyGame(arcade.Window):
 
                 # Que the battle music!
                 self.play_song(random.choice(self.battle_music))
+
+        elif self._vending_machine_screen.show_vending_screen:
+            self._controls.vending_screen_pressed(key, modifiers)
+            self._controls.update_current_index()
+            self._vending_machine_screen.choice = self._controls.current_index
 
         else:
             self._controls.battle_scene_pressed(key, modifiers, self.show_text)
@@ -358,7 +371,9 @@ class MyGame(arcade.Window):
                     if self._battle_moves.moves[self._battle_moves.current_move] == "attempt":
                         self.with_professor.task_health -= 1
                     if self._battle_moves.moves[self._battle_moves.current_move] == "Monster Drink":
-                        self.player_list[0].stamina += 3
+                        if self.player_list[0].monsters >= 1:
+                            self.player_list[0].stamina = self.player_list[0].stamina_max
+                            self.player_list[0].monsters -= 1
 
             else:                    
                 self._battle_moves.can_show_battle_moves = False
@@ -369,9 +384,11 @@ class MyGame(arcade.Window):
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
-        if not self._scene.battle_scene:
+        if not self._scene.battle_scene and not self._vending_machine_screen.show_vending_screen:
             self._controls.main_scene_released(key, modifiers, self.show_text)
             self.player_sprite.change_x, self.player_sprite.change_y = self._controls.change_x, self._controls.change_y
+        elif self._vending_machine_screen.show_vending_screen:
+            self._controls.vending_screen_released(key, modifiers)
         else:
             self._controls.battle_scene_released(key, modifiers, self.show_text)
             self._controls.update_current_index()
@@ -405,6 +422,34 @@ class MyGame(arcade.Window):
                 self.with_professor = None
 
                 self.show_text = False
+
+            
+            vending_machine = arcade.check_for_collision_with_list(self.player_sprite, self.machines_list)
+            
+            if len(vending_machine) > 0:
+                if not self._vending_machine_screen.has_left:
+                    # Set the player speed to 0
+                    self.player_list[0].change_x = 0
+                    self.player_list[0].change_y = 0
+                    
+
+                    self._vending_machine_screen.show_vending_screen = True
+                    self._vending_machine_screen.determine_output(self._controls.can_proceed, self.player_list[0].money)
+                    
+                    # If the player decides to leave make sure they pay first
+                    # Then reset the amount of monsters bought to 0
+                    if self._vending_machine_screen.has_left:
+                        self.player_list[0].money -= self._vending_machine_screen.monster_cost * self._vending_machine_screen.monsters_bought
+                        self.player_list[0].monsters = self._vending_machine_screen.monsters_bought
+                        self._vending_machine_screen.monsters_bought = 0
+                else:
+                    self._vending_machine_screen.show_vending_screen = False
+
+
+            else:
+                self._vending_machine_screen.show_vending_screen = False
+                self._vending_machine_screen.has_left = False
+
 
             if not self._scene.battle_scene:
                 
