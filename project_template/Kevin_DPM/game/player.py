@@ -19,3 +19,11 @@ class Player(arcade.Sprite):
         self.can_continue_battle = True
         self.monsters = 0
         self.money = 50
+        self.level = 1
+    
+    def draw_level_and_money(self, left, bottom):
+        arcade.draw_xywh_rectangle_filled(left, constants.SCREEN_HEIGHT + bottom - 50, constants.SPRITE_PIXEL_SIZE, 50, arcade.csscolor.WHITE)
+        arcade.draw_text(f"Level: {self.level}",left, constants.SCREEN_HEIGHT + bottom - 50, arcade.csscolor.BLACK, 30)
+        
+        arcade.draw_xywh_rectangle_filled(left + constants.SCREEN_WIDTH - constants.SPRITE_PIXEL_SIZE, constants.SCREEN_HEIGHT + bottom - 50, constants.SPRITE_PIXEL_SIZE, 50, arcade.csscolor.WHITE)
+        arcade.draw_text(f"${self.money}",left + constants.SCREEN_WIDTH - constants.SPRITE_PIXEL_SIZE, constants.SCREEN_HEIGHT + bottom - 50, arcade.csscolor.BLACK, 30)

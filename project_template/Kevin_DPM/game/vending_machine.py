@@ -54,7 +54,7 @@ class Vending_machine_screen:
 
     def draw_vending_text(self, left, bottom):
         arcade.draw_text(self.text, (self.screen_x + self.screen_width/2) + left, ((self.screen_y + self.screen_height - self.screen_height/4) - self.option_spacing) + bottom, arcade.csscolor.BLACK, 35, anchor_x="center", anchor_y="center")
-        arcade.draw_text(f"Monsters: \n ${self.monsters_bought*self.monster_cost} (${self.monster_cost} / 1)", (self.screen_x + self.screen_width/4) + left, (self.screen_y + self.screen_height/2) + bottom, arcade.csscolor.BLACK, 30, anchor_x="center", anchor_y="center")
+        arcade.draw_text(f"Monsters ({self.monsters_bought}): \n ${self.monsters_bought*self.monster_cost} (${self.monster_cost} / 1)", (self.screen_x + self.screen_width/4) + left, (self.screen_y + self.screen_height/2) + bottom, arcade.csscolor.BLACK, 30, anchor_x="center", anchor_y="center")
         arcade.draw_text(f"Your Money: \n ${self.player_money}", (self.screen_x + self.screen_width - self.screen_width/4) + left, (self.screen_y + self.screen_height/2) + bottom, arcade.csscolor.BLACK, 30, anchor_x="center", anchor_y="center")
 
     def update_player_money(self, player_money):

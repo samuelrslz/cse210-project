@@ -5,13 +5,14 @@ import random as r
 class Professor(arcade.Sprite):
     
 
-    def __init__(self, images, name, start_x, start_y, attacks, task_size, move_to_give, tip):
+    def __init__(self, images, name, start_x, start_y, attacks, task_size, move_to_give, tip, required_level):
         super().__init__(images[0], constants.CHARACTER_SCALING)
         self.start_x = start_x
         self.start_y = start_y
         self.center_x = start_x
         self.center_y = start_y
         self.professor_name = name
+        self.required_level = required_level
 
         self.steps_max = 5
         self.steps = self.steps_max
@@ -136,8 +137,9 @@ class Professor(arcade.Sprite):
         else:
             self.change_x = 0
             self.change_y = 0
-            self.task_health_max = 20
+            self.task_health_max = 50
             self.task_health = self.task_health_max
+            self.required_level = 5
 
             
             
