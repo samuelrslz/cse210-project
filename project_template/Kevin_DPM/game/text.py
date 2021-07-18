@@ -8,8 +8,34 @@ class Text():
         self.text = ""
         self.display_text = ""
         self.display_text_count = 0
-
+        self.intro_text = "Hello Kevin. Your task wether you choose to accept is to find all of the professors and complete their tasks. If you look around you may be able to find some drinks to restore your stamina as well a TA who will help you increase your stamina. Best of luck! (Press 'ENTER' to continue)"
+        self.simplify_text()
         
+    def simplify_text(self):
+        text = self.intro_text.split(" ")
+        
+        current_length = 0
+        final_text = ""
+        new_text = ""
+
+        for word in text:
+            current_length = len(new_text)
+            new_length = current_length + len(word)
+            if word == "continue)":
+                new_text += word + " "
+                final_text += new_text
+            elif new_length < 35:
+                new_text += word + " "
+
+            else:
+                final_text += new_text + "\n"
+                new_text = ""
+                new_text += word + " "
+
+
+        self.intro_text = final_text
+            
+            
 
         
     def print_text(self, text, show_has_finished = False):
@@ -56,3 +82,8 @@ class Text():
     def clear_text(self):
         self.display_text = ""
         self.display_text_count = 0
+
+# text = Text()
+
+# text.simplify_text()
+# print(text.intro_text)

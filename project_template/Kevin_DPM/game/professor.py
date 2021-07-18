@@ -46,6 +46,7 @@ class Professor(arcade.Sprite):
 
         self.current_text = 0
         self.text_options = []
+        self.can_move = False
         #     f"Professor {self.professor_name} wants to battle you! Press 'ENTER' to battle"
 
             # ]
@@ -137,9 +138,12 @@ class Professor(arcade.Sprite):
         else:
             self.change_x = 0
             self.change_y = 0
-            self.task_health_max = 50
+            self.task_health_max = 30
             self.task_health = self.task_health_max
             self.required_level = 5
+            self.attack_names = ["Find a job", "Manage a team"]
+            self.attacks_damage = [5,6]
+            self.can_move = False
 
             
             
