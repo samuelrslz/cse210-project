@@ -51,6 +51,8 @@ MUSIC_VOLUME = 0.5
 PATH = os.path.dirname(os.path.abspath(__file__))
 MAIN_MENU = os.path.join(PATH, "..", "assets", "images", "screens", "main_screen.png")
 
+END_IMG = os.path.join(PATH, "..", "assets", "images", "screens", "winning_screen.png")
+
 KEVIN_STANDING = os.path.join(PATH, "..", "assets", "images", "kevin", "kevin_standing.png")
 KEVIN_BATTLE = os.path.join(PATH, "..", "assets", "images", "kevin", "kevin_battle.png")
 

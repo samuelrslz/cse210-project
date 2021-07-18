@@ -8,10 +8,21 @@ class Scene:
 
         self.battle_scene = False
         self.show_main_menu = True
+        self.show_intro_message = False
+        self.show_end_message = False
         
-    def main_menu(self, main_menu_img, left, bottom):
-        arcade.draw_texture_rectangle(constants.SCREEN_WIDTH/2 + left, constants.SCREEN_HEIGHT/2 + bottom, 
+    def main_menu(self, main_menu_img, intro_text, left, bottom):
+        if not self.show_intro_message:
+            arcade.draw_texture_rectangle(constants.SCREEN_WIDTH/2 + left, constants.SCREEN_HEIGHT/2 + bottom, 
                                     constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT, main_menu_img)
+        else:
+            arcade.draw_xywh_rectangle_filled(left, bottom, constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT, arcade.csscolor.WHITE)
+            arcade.draw_xywh_rectangle_outline(left + 15, bottom + 15, constants.SCREEN_WIDTH - 30, constants.SCREEN_HEIGHT - 30, arcade.csscolor.BLACK, 50)
+            arcade.draw_text(intro_text, left + constants.SCREEN_WIDTH/2, constants.SCREEN_HEIGHT/2 + bottom - 50, arcade.csscolor.BLACK, 45, anchor_x="center", anchor_y="center")
+    
+    def end_scene(self, end_img, left, bottom):
+        arcade.draw_texture_rectangle(constants.SCREEN_WIDTH/2 + left, constants.SCREEN_HEIGHT/2 + bottom, 
+                                    constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT, end_img)
     
     def display(self, characters):
         for character in characters:

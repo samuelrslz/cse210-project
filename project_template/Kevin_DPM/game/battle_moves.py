@@ -11,6 +11,12 @@ class Battle_Moves:
         self.move_box_width = constants.SCREEN_WIDTH/2
         self.can_show_battle_moves = False
         self.has_chosen_move = False
+        self.has_move_3 = False
+        self.has_move_4 = False
+        self.power_points_move_3_max = 7
+        self.power_points_move_3 = self.power_points_move_3_max
+        self.power_points_move_4_max = 4
+        self.power_points_move_4 = self.power_points_move_4_max
 
 
     def draw_all_moves(self, left, bottom, players_monsters):
@@ -37,6 +43,11 @@ class Battle_Moves:
         text = self.moves[text_index]
         if text == "Monster Drink":
             text = f"Monster Drink ({players_monsters})"
+        elif text == "Debug":
+            text = f"Debug ({self.power_points_move_3}/{self.power_points_move_3_max})"
+        elif text == "Stack Overflow":
+            text = f"Stack Overflow ({self.power_points_move_4}/{self.power_points_move_4_max})"
+
         arcade.draw_rectangle_filled(x, y, constants.SCREEN_WIDTH/2, constants.TEXT_BOX_HEIGHT/2, color)
 
         arcade.draw_text(text, x - self.move_box_width/2, y - 20, arcade.csscolor.BLACK, 48)
